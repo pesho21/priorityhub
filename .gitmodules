@@ -1,0 +1,6 @@
+[submodule "priorityhub-frontend"]
+	path = priorityhub-frontend
+	url = https://github.com/pesho21/priorityhub-frontend
+[submodule "priorityhub-backend"]
+	path = priorityhub-backend
+	url = https://github.com/pesho21/priorityhub-backend
