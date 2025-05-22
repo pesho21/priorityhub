@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  db:
+    container_name: database
+    image: postgres:15
+    restart: always
+    env_file:
+      - ~/priorityhub-root/priorityhub-backend/.env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - app-network
+    ports:
+      - "5432:5432"
+
+  backend:
+    container_name: priorityhub-backend
+    build: ./priorityhub-backend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    command: sh -c "sleep 5 && npx prisma migrate deploy && npm run start:prod"
+    env_file:
+      - ~/priorityhub-root/priorityhub-backend/.env
+    networks:
+      - app-network
+
+  frontend:
+    container_name: priorityhub-frontend
+    build: ./priorityhub-frontend
+    ports:
+      - "3001:3001"
+    env_file:
+      - ~/priorityhub-root/priorityhub-frontend/.env
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+volumes:
+  pgdata:
+
+networks:
+  app-network:
