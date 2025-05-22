@@ -1,12 +1,22 @@
-version: '3.8'
-
 services:
+  nginx-proxy-manager:
+    image: 'jc21/nginx-proxy-manager:latest'
+    ports:
+      - '80:80'
+      - '81:81'
+      - '443:443'
+    volumes:
+      - ./data:/data
+      - ./letsencrypt:/etc/letsencrypt
+    networks:
+      - app-network
+
   db:
-    container_name: database
+    container_name: priorityhub-database
     image: postgres:15
     restart: always
     env_file:
-      - ~/priorityhub-root/priorityhub-backend/.env
+      - ./priorityhub-backend/.env
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:
@@ -21,9 +31,9 @@ services:
       - "3000:3000"
     depends_on:
       - db
-    command: sh -c "sleep 5 && npx prisma migrate deploy && npm run start:prod"
+    command: sh -c "npx prisma migrate deploy && npm run start:prod"
     env_file:
-      - ~/priorityhub-root/priorityhub-backend/.env
+      - ./priorityhub-backend/.env
     networks:
       - app-network
 
@@ -33,7 +43,7 @@ services:
     ports:
       - "3001:3001"
     env_file:
-      - ~/priorityhub-root/priorityhub-frontend/.env
+      - ./priorityhub-frontend/.env
     environment:
       - CHOKIDAR_USEPOLLING=true
     depends_on:
